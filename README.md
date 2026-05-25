@@ -39,7 +39,7 @@ Ratgeber runs locally on your infrastructure. No cloud dependency. No configurat
       | chunk + embed
       | (Sentence Transformers)
       v
-[ ChromaDB ] \<=\=\=> [ LangChain ] \<=\=\=> [ Gemma via Ollama ] \<=\=\=> [ CLI ]
+[ ChromaDB ] <===> [ LangChain ] <===> [ Gemma via Ollama ] <===> [ CLI ]
 ```
 
 - ChromaDB — vector store holding chunked Linbit documentation
