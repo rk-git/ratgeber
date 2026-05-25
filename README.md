@@ -33,12 +33,14 @@ Ratgeber>
 
 Ratgeber runs locally on your infrastructure. No cloud dependency. No configuration data leaves your site.
 
+```
 [ Linbit Docs ]
       |
       | chunk + embed
       | (Sentence Transformers)
       v
 [ ChromaDB ] \<=\=\=> [ LangChain ] \<=\=\=> [ Gemma via Ollama ] \<=\=\=> [ CLI ]
+```
 
 - ChromaDB — vector store holding chunked Linbit documentation
 - LangChain — orchestrates retrieval and prompt construction
