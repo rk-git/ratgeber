@@ -8,7 +8,6 @@ copyright (c) 2026 Always Up Networks. MIT License.
 """
 from pathlib import Path
 from typing import List
-import chromadb
 
 from langchain_community.document_loaders import PyPDFLoader, TextLoader
 from langchain_core.documents import Document
@@ -17,9 +16,10 @@ from langdetect import detect
 import logging
 from enum import Enum
 
-from sentence_transformers import SentenceTransformer
 from spacy.language import Language
 from typing import Final
+
+from src.config import config
 
 CHUNK_SIZE: Final[int] = 500
 CHUNK_OVERLAP: Final[int] = 50
@@ -35,9 +35,6 @@ SPACY_MODELS = {
 }
 
 SUPPORTED_EXTENSIONS = {".pdf", ".txt", ".md"}
-embedding_model = None
-chroma_client = None
-collection = None
 
 def load_document(filename: Path) ->  List[Document]:
     if not filename.is_file():
@@ -136,8 +133,8 @@ def ingest_file(filepath: str):
     # Store each chunk in ChromaDB with metadata
     for i, chunk in enumerate(output_chunks):
         # Embed each chunk using Sentence Transformer
-        embedding = embedding_model.encode(chunk.page_content).tolist()
-        collection.add(
+        embedding = config.embedding_model.encode(chunk.page_content).tolist()
+        config.collection.add(
             documents=[chunk.page_content],
             embeddings=[embedding],
             ids=[f"{file.name}_chunk_{i}"],
@@ -176,17 +173,7 @@ def ingest_all(directory: str = "../data/docs"):
         f"Finished ingesting {files_found} files"
     )
 
-def initialize():
-    global embedding_model
-    global chroma_client
-    global collection
-
-    embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
-    chroma_client = chromadb.PersistentClient(path="../data/chroma_db")
-    collection = chroma_client.get_or_create_collection(name="linbit_docs")
-
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
-    initialize()
     ingest_all()
