@@ -19,6 +19,10 @@ from enum import Enum
 
 from sentence_transformers import SentenceTransformer
 from spacy.language import Language
+from typing import Final
+
+CHUNK_SIZE: Final[int] = 500
+CHUNK_OVERLAP: Final[int] = 50
 
 class LangType(Enum):
     UNSUPPORTED = 0
@@ -80,7 +84,7 @@ def chunk_document(documents: List[Document]) -> List[Document]:
             buffer.append(text)
             size += len(text)
 
-            if size >= 500:
+            if size >= CHUNK_SIZE:
                 output_chunks.append(
                     Document(
                         page_content=" ".join(buffer),
@@ -125,7 +129,7 @@ def ingest_file(filepath: str):
 
     content = load_document(file)
 
-    # Chunk the docments...
+    # Chunk the documents...
     output_chunks = chunk_document(content)
 
 
@@ -183,5 +187,6 @@ def initialize():
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
     initialize()
     ingest_all()
