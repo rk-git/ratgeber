@@ -22,20 +22,22 @@ RATGEBER_PROMPT = "Ratgeber> "
 def cli():
     logging.basicConfig(level=logging.INFO)
     print(RATGEBER_BANNER)
+
+    messages = []  # conversation history grows here
+
     quit = False
     while not quit:
-        # Read user query
         user_query = input(RATGEBER_PROMPT)
         logging.info(f"user query = {user_query}")
 
-        if user_query == 'quit':
+        if user_query.lower() in ('quit', 'exit', 'q'):
             quit = True
         else:
-            response = pipeline(user_query)
+            response, messages = pipeline(user_query, messages)
             print(f"\n{response}\n")
 
     logging.info("*** Goodbye ***")
-
+    
 if __name__ == "__main__":
     cli()
 

@@ -6,38 +6,42 @@ ChromaDB and returns the top (configured) 5 queries.
 
 copyright (c) 2026 Always Up Networks. MIT License.
 """
-from typing import List
 import logging
-
+from typing import List
+from enum import Enum
 from src.prompt.builder import build_ratgeber_prompt
-from src.rag.retriever import retrieve
+from src.rag.chromadb import retrieve_query_context
 import ollama
 
-def query_ollama(prompt: str) -> str:
+class AgentType(str, Enum):
+    UNSUPPORTED = ""
+    SYSTEM = "system"
+    USER = "user"
+    ASSISTANT = "assistant"
+
+def query_ollama(messages: List[dict]) -> str:
     response = ollama.chat(
         model='gemma3',
-        messages=[
-            {
-                'role': 'user',
-                'content': prompt
-            }
-        ]
+        messages=messages
     )
-
     answer = response['message']['content']
-
-    logging.info(
-        f"Answer to query '{prompt}' is '{answer}'"
-    )
-
+    logging.info(f"Ollama response: {answer}")
     return answer
 
+def augment_context(messages: List[dict], agent: AgentType, msg: str) -> List[dict]:
+    appendage = {'role': agent.value, 'content': msg}
+    return messages + [appendage]
 
-def pipeline(query:str) -> str:
-    results = retrieve(query)
-    context = "\n\n".join(results)
+def pipeline(query: str, messages: list) -> tuple[str, list]:
+    logging.info(f"Context: {messages}")
+
+    context = retrieve_query_context(query)
     prompt = build_ratgeber_prompt(context, query)
     logging.info(f"Prompt built: {prompt}")
-    response = query_ollama(prompt)
+
+    messages = augment_context(messages, AgentType.USER, query)
+    response = query_ollama(messages)
     logging.info(f"Query {query} yielded response {response}")
-    return response
+    messages = augment_context(messages, AgentType.ASSISTANT, response)
+
+    return response, messages
