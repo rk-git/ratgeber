@@ -11,27 +11,17 @@ copyright (c) 2026 Always Up Networks. MIT License.
 import logging
 
 
-PROMPT_TEMPLATE = """
-You are Ratgeber, a DRBD and Linstor configuration advisor for Linbit.
-
-Answer the user's question based ONLY on the context below.
-
-If the context does not contain enough information
-to answer confidently, say so.
-
-Do not invent or hallucinate configurations,
-commands, settings, or features not supported
-by the context.
-
-CONTEXT:
+PROMPT_TEMPLATE = """CONTEXT FROM OFFICIAL LINBIT DOCUMENTATION:
 {context}
 
-USER QUESTION:
-{query}
+---
+Based ONLY on the context above, answer this question: {query}
 
-ANSWER:
-"""
+If the context does not contain the answer, respond with exactly: "I don't have that information in my knowledge base."
 
+Do not use any knowledge outside the context above.
+
+ANSWER:"""
 
 def build_ratgeber_prompt(
     context: str,

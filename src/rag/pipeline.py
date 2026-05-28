@@ -13,6 +13,9 @@ from src.prompt.builder import build_ratgeber_prompt
 from src.rag.chromadb import retrieve_query_context
 import ollama
 
+from src.utils import utils
+
+
 class AgentType(str, Enum):
     UNSUPPORTED = ""
     SYSTEM = "system"
@@ -40,8 +43,9 @@ def pipeline(query: str, messages: list) -> tuple[str, list]:
     logging.info(f"Prompt built: {prompt}")
 
     messages = augment_context(messages, AgentType.USER, query)
-    response = query_ollama(messages)
-    logging.info(f"Query {query} yielded response {response}")
+    raw_response = query_ollama(messages)
+    response = raw_response #utils.strip_markdown(raw_response)
+    #logging.info(f"Query {query} yielded response {response}")
     messages = augment_context(messages, AgentType.ASSISTANT, response)
 
     return response, messages

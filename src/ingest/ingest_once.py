@@ -36,6 +36,10 @@ SPACY_MODELS = {
 
 SUPPORTED_EXTENSIONS = {".pdf", ".txt", ".md"}
 
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+DATA_DOCS_DIR = PROJECT_ROOT / "data" / "docs"
+DATA_CHROMA_DIR = PROJECT_ROOT / "data" / "chroma_db"
+
 def load_document(filename: Path) ->  List[Document]:
     if not filename.is_file():
         logging.error(f"Expected file, got something else: {filename}")
@@ -144,7 +148,7 @@ def ingest_file(filepath: str):
     # Log progress
     logging.info(f"Ingested {len(output_chunks)} chunks")
 
-def ingest_all(directory: str = "../data/docs"):
+def ingest_all(directory: str = str(DATA_DOCS_DIR)):
     root = Path(directory)
     if not root.is_dir():
         raise NotADirectoryError(

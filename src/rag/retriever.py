@@ -12,7 +12,7 @@ from typing import List, Final
 
 from src.config import config
 
-DEFAULT_RESULT_COUNT: Final[int] = 5
+DEFAULT_RESULT_COUNT: Final[int] = 10
 
 def retrieve(query: str, n_results: int = DEFAULT_RESULT_COUNT) -> List[str]:
     query_vector = config.embedding_model.encode(query).tolist()
