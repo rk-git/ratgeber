@@ -34,7 +34,7 @@ SPACY_MODELS = {
     LangType.GERMAN: "de_core_news_sm",
 }
 
-SUPPORTED_EXTENSIONS = {".pdf", ".txt", ".md"}
+SUPPORTED_EXTENSIONS = {".pdf", ".txt", ".md", ".adoc"}
 
 PROJECT_ROOT = Path(__file__).parent.parent.parent
 DATA_DOCS_DIR = PROJECT_ROOT / "data" / "docs"
@@ -52,6 +52,9 @@ def load_document(filename: Path) ->  List[Document]:
         loader = TextLoader(str(filename))
         return loader.load()
     elif filename.suffix == ".md":
+        loader = TextLoader(str(filename))
+        return loader.load()
+    elif filename.suffix == ".adoc":
         loader = TextLoader(str(filename))
         return loader.load()
     else:

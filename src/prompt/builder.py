@@ -21,7 +21,22 @@ If the context does not contain the answer, respond with exactly: "I don't have 
 
 Do not use any knowledge outside the context above.
 
+If the question involves deployment topology, include a JSON block at the very end of your response in this exact format:
+
+```topology
+{{
+    "nodes": [
+        {{"name": "Node A", "role": "Primary", "state": "Active"}},
+        {{"name": "Node B", "role": "Secondary", "state": "Standby"}}
+    ],
+    "links": [
+        {{"from": "Node A", "to": "Node B", "type": "DRBD sync", "protocol": "C"}}
+    ]
+}}
+```
+
 ANSWER:"""
+
 
 def build_ratgeber_prompt(
     context: str,

@@ -24,7 +24,7 @@ class AgentType(str, Enum):
 
 def query_ollama(messages: List[dict]) -> str:
     response = ollama.chat(
-        model='gemma3',
+        model='mistral',
         messages=messages
     )
     answer = response['message']['content']
@@ -42,7 +42,7 @@ def pipeline(query: str, messages: list) -> tuple[str, list]:
     prompt = build_ratgeber_prompt(context, query)
     logging.info(f"Prompt built: {prompt}")
 
-    messages = augment_context(messages, AgentType.USER, query)
+    messages = augment_context(messages, AgentType.USER, prompt)
     raw_response = query_ollama(messages)
     response = raw_response #utils.strip_markdown(raw_response)
     #logging.info(f"Query {query} yielded response {response}")
