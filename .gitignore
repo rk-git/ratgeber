@@ -2,5 +2,6 @@ data/chroma_db/
 data/docs/
 __pycache__/
 *.pyc
+*.txt
 data/chroma_db/
 data/docs/
