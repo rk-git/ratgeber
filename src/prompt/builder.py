@@ -11,15 +11,19 @@ copyright (c) 2026 Always Up Networks. MIT License.
 import logging
 
 
-PROMPT_TEMPLATE = """CONTEXT FROM OFFICIAL LINBIT DOCUMENTATION:
+PROMPT_SYSTEM_TEMPLATE = """CONTEXT FROM OFFICIAL LINBIT DOCUMENTATION:
 {context}
 
 ---
-Based ONLY on the context above, answer this question: {query}
-
-If the context does not contain the answer, respond with exactly: "I don't have that information in my knowledge base."
-
+IMPORTANT: Always respond in the same language as the user's question. 
+CRITICAL: Detect the language of the CURRENT question only. Ignore the language of previous questions. Each question must be answered in its own language independently.
 Do not use any knowledge outside the context above.
+If the context does not contain the answer, inform the user in their language that the information is not available in your knowledge base.
+"""
+
+PROMPT_USER_TEMPLATE = """
+---
+Answer this question: {query}
 
 If the question involves deployment topology, include a JSON block at the very end of your response in this exact format:
 
@@ -37,14 +41,15 @@ If the question involves deployment topology, include a JSON block at the very e
 
 ANSWER:"""
 
-
 def build_ratgeber_prompt(
     context: str,
     query: str
 ) -> str:
 
-    prompt = PROMPT_TEMPLATE.format(
-        context=context,
+    prompt_system = PROMPT_SYSTEM_TEMPLATE.format(
+        context=context
+    )
+    prompt_user = PROMPT_USER_TEMPLATE.format(
         query=query
     )
 
@@ -54,4 +59,4 @@ def build_ratgeber_prompt(
         query
     )
 
-    return prompt
+    return prompt_system, prompt_user

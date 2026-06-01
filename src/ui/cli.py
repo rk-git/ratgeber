@@ -9,6 +9,8 @@ copyright (c) 2026 Always Up Networks. MIT License.
 
 import logging
 import os
+import time
+
 from src.utils.utils import extract_topology, draw_topology
 from rich.console import Console
 from rich.markdown import Markdown
@@ -48,11 +50,25 @@ def cli():
             #console.print("[bold green] [/bold green]")
             clean_text, topology = extract_topology(response)
             console.print()
-            console.print(Markdown(clean_text))
-            if topology:
-                print()
-                console.print("[bold yellow]Topology:[/bold yellow]")
-                draw_topology(topology)
+            with console.pager():
+                console.print("*** Tip: Press 'q' to quit pager, then you can save this answer to a file. ***")
+                console.print(Markdown(clean_text))
+                if topology:
+                    print()
+                    console.print("[bold yellow]Topology:[/bold yellow]")
+                    draw_topology(topology)
+
+            console.print("[dim]Type 'save [filename]' to save this answer, or press ENTER to continue:[/dim]")
+            save_input = input().strip()
+            if save_input.lower().startswith("save"):
+                parts = save_input.split(maxsplit=1)
+                filename = parts[1] if len(parts) > 1 else f"ratgeber_{int(time.time())}.txt"
+                with open(filename, 'w') as f:
+                    f.write(clean_text)
+                    if topology:
+                        f.write("\n\nTopology:\n")
+                        f.write(str(topology))
+                console.print(f"[green]Saved to {filename}[/green]")
 
             console.print("---")
             console.print()
