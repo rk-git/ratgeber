@@ -43,6 +43,8 @@ def cli():
             continue
         if user_query.lower() in ('quit', 'exit', 'q'):
             quitloop = True
+        elif len(user_query.split()) < 2:
+            console.print(f"[dim]??{user_query}??[/dim]")
         else:
             with console.status("[yellow]Working...[/yellow]"):
                 response, messages = pipeline(user_query, messages)
@@ -50,15 +52,14 @@ def cli():
             #console.print("[bold green] [/bold green]")
             clean_text, topology = extract_topology(response)
             console.print()
-            with console.pager():
-                console.print("*** Tip: Press 'q' to quit pager, then you can save this answer to a file. ***")
-                console.print(Markdown(clean_text))
-                if topology:
-                    print()
-                    console.print("[bold yellow]Topology:[/bold yellow]")
-                    draw_topology(topology)
+            console.print(Markdown(clean_text))
+            if topology:
+                console.print()
+                console.print("[bold yellow]Topology:[/bold yellow]")
+                console.print(draw_topology(topology))
 
-            console.print("[dim]Type 'save [filename]' to save this answer, or press ENTER to continue:[/dim]")
+            console.print()
+            console.print("[dim]─── Type 'save [filename]' to save, or press ENTER to continue ───[/dim]")
             save_input = input().strip()
             if save_input.lower().startswith("save"):
                 parts = save_input.split(maxsplit=1)

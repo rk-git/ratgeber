@@ -49,8 +49,8 @@ def draw_node_lines(node, width=22):
 
     lines = [
         node["name"],
-        f"Role: {node['role']}",
-        f"State: {node['state']}"
+        f"Role: {node.get('role', 'Unknown')}",
+        f"State: {node.get('state', 'Unknown')}"
     ]
 
     border = "+" + "-" * width + "+"
@@ -63,7 +63,7 @@ def draw_node_lines(node, width=22):
     output.append(border)
     return output
 
-def draw_topology(topology_json: dict, spacing=5):
+def draw_topology(topology_json: dict, spacing=5) -> str:
     """
        Render multiple topology nodes horizontally.
     """
@@ -72,11 +72,14 @@ def draw_topology(topology_json: dict, spacing=5):
 
     rendered_nodes = [draw_node_lines(node) for node in nodes]
 
+    result = ""
     for row_parts in zip(*rendered_nodes):
-        print((" " * spacing).join(row_parts))
+        result += (" " * spacing).join(row_parts) + "\n"
 
     if links:
-        print(draw_links(links, nodes))
+        result += draw_links(links, nodes)
+
+    return result
 
 def draw_links(links, nodes, width=22, spacing=5):
     """
