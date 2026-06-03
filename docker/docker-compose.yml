@@ -1,0 +1,13 @@
+services:
+  ratgeber:
+    build: .
+    volumes:
+      - ollama_models:/root/.ollama
+      - chroma_data:/app/data/chroma_db
+      - ./data/docs:/app/data/docs
+    stdin_open: true
+    tty: true
+
+volumes:
+  ollama_models:
+  chroma_data:
