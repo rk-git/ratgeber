@@ -48,7 +48,8 @@ sends your configuration data or logs to the cloud.
 +----------------+
 |   Ollama       |
 |   (local LLM)  |
-|   Mistral      |
+|   Mistral      |  <-- current prototype
+|   ratgeber     |  <-- target: fine-tuned model (Hugging Face)
 +----------------+
        |
        | response (language matched to user's query)
@@ -215,6 +216,103 @@ two secondaries) but has not fully lost connectivity. DRBD's quorum
 policy will demote the primary to secondary to preserve data integrity.
 The secondary that remains connected to the former primary will...
 ```
+
+---
+
+## The Ratgeber Model
+
+The current implementation uses Mistral — a capable general-purpose language model —
+augmented with RAG over official Linbit documentation. This works well as a prototype
+but has a fundamental limitation: Mistral was not trained on DRBD and LINSTOR
+specifically. It reasons about these systems by analogy to other distributed storage
+systems it has seen.
+
+The target architecture replaces generic Mistral with a fine-tuned model — **ratgeber**
+— trained specifically on:
+
+- Official Linbit documentation (DRBD, LINSTOR, DRBD Reactor)
+- Real-world drbd.conf and linstor.conf examples
+- DRBD mailing list Q&A archives
+- Linbit support knowledge base
+- Community-contributed configurations and failure post-mortems
+
+The fine-tuned ratgeber model will be published on Hugging Face under an open license,
+making it available for the broader DRBD and LINSTOR community to use, evaluate, and
+improve.
+
+The RAG pipeline is not discarded in this transition — it remains as the retrieval
+layer, grounding the fine-tuned model's responses in current documentation. The
+combination of a domain-specific model and RAG retrieval is expected to produce
+significantly better answers than either alone.
+
+The current prototype also serves as the evaluation harness: ratgeber-fine-tuned will
+be benchmarked against Mistral + RAG on a curated set of DRBD/LINSTOR questions before
+publication.
+
+**Hugging Face:** https://huggingface.co/rk-git/ratgeber *(placeholder — model in development)*
+
+---
+
+## Configuration Generation
+
+RatGeber can generate a starter drbd.conf from a natural language description of the
+administrator's requirements. The administrator describes what they need; RatGeber
+produces a syntactically correct, semantically reasonable configuration as a starting
+point for refinement.
+
+This addresses the blank page problem: experienced administrators know what they want
+but writing correct DRBD configuration from scratch is tedious. New administrators
+may not know the correct syntax or which parameters are relevant to their use case.
+
+### Example interaction
+
+```
+Ratgeber> generate
+
+Describe your cluster requirements:
+> Two nodes, active-passive, synchronous replication, automatic
+  failover on node failure, 20GB resource on /dev/sdb on each node.
+  Nodes are connected via a dedicated 10GbE replication interface.
+
+Generating configuration...
+
+resource storage {
+  protocol C;
+
+  disk {
+    on-io-error detach;
+    no-disk-flushes;
+  }
+
+  net {
+    after-sb-0pri discard-zero-changes;
+    after-sb-1pri discard-secondary;
+    after-sb-2pri disconnect;
+  }
+
+  on node1 {
+    device    /dev/drbd0;
+    disk      /dev/sdb;
+    address   192.168.10.1:7789;
+    meta-disk internal;
+  }
+
+  on node2 {
+    device    /dev/drbd0;
+    disk      /dev/sdb;
+    address   192.168.10.2:7789;
+    meta-disk internal;
+  }
+}
+
+This configuration implements synchronous replication (Protocol C) with
+automatic split-brain resolution. Review and adjust the IP addresses and
+device paths before use. Consider adding a quorum section if a third node
+or quorum device is available.
+```
+
+Generated configurations are starting points, not production-ready files.
+RatGeber will flag parameters it has defaulted and explain the alternatives.
 
 ---
 
