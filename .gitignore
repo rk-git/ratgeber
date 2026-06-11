@@ -5,3 +5,6 @@ __pycache__/
 *.txt
 data/chroma_db/
 data/docs/
+corpus
+output
+.cache
