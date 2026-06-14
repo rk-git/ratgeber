@@ -110,4 +110,3 @@ Scenario: Fetch transcript for a valid video
       | total chunks saved             |
       | total chunks ingested to ChromaDB |
 
-  
